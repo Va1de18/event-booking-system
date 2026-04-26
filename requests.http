@@ -1,0 +1,127 @@
+### ===== AUTH =====
+
+### Регистрация обычного пользователя
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@mail.com",
+  "password": "123456",
+  "fullName": "Test User"
+}
+
+###
+
+### Регистрация администратора (роль USER по умолчанию, поменяем вручную в БД)
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "admin@mail.com",
+  "password": "123456",
+  "fullName": "Admin User"
+}
+
+###
+
+### Логин — скопируй token из ответа
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@mail.com",
+  "password": "123456"
+}
+
+
+### ===== CATEGORIES =====
+
+### Получить все категории (без токена)
+GET http://localhost:8080/api/categories
+
+###
+
+### Получить категорию по ID
+GET http://localhost:8080/api/categories/1
+
+
+### ===== VENUES =====
+
+### Получить все площадки
+GET http://localhost:8080/api/venues
+
+###
+
+### Создать площадку (нужен токен ADMIN)
+POST http://localhost:8080/api/venues
+Content-Type: application/json
+Authorization: Bearer PASTE_TOKEN_HERE
+
+{
+  "name": "Olympic Stadium",
+  "address": "Olympiyska St, 1",
+  "city": "Kyiv",
+  "capacity": 70000
+}
+
+###
+
+### Получить площадки по городу
+GET http://localhost:8080/api/venues?city=Kyiv
+
+
+### ===== EVENTS =====
+
+### Получить все события
+GET http://localhost:8080/api/events
+
+###
+
+### Получить события с фильтрами
+GET http://localhost:8080/api/events?city=Kyiv&categoryId=1
+
+###
+
+### Создать событие (нужен токен ADMIN)
+POST http://localhost:8080/api/events
+Content-Type: application/json
+Authorization: Bearer PASTE_TOKEN_HERE
+
+{
+  "title": "Rock Fest 2026",
+  "description": "The biggest rock festival of the year",
+  "eventDate": "2026-08-15T18:00:00",
+  "price": 49.99,
+  "venueId": 1,
+  "categoryId": 1
+}
+
+###
+
+### Получить событие по ID
+GET http://localhost:8080/api/events/1
+
+
+### ===== BOOKINGS =====
+
+### Забронировать места (нужен токен USER)
+POST http://localhost:8080/api/bookings
+Content-Type: application/json
+Authorization: Bearer PASTE_TOKEN_HERE
+
+{
+  "eventId": 1,
+  "seatsCount": 2
+}
+
+###
+
+### Мои брони
+GET http://localhost:8080/api/bookings
+Authorization: Bearer PASTE_TOKEN_HERE
+
+###
+
+### Отменить бронь по ID
+DELETE http://localhost:8080/api/bookings/1
+Authorization: Bearer PASTE_TOKEN_HERE

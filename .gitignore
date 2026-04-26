@@ -1,0 +1,31 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Spring Boot
+*.log
+spring.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env / secrets
+.env
+*.env
+
+# Claude Code
+.claude/
+
+# Docker volumes
+postgres-data/
