@@ -1,128 +1,128 @@
 # Event Booking System
 
-REST API для бронирования билетов на события — концерты, фестивали, спортивные мероприятия.
+A REST API backend for booking tickets to events — concerts, festivals, and sports games.
 
-## Стек технологий
+## Tech Stack
 
 - **Java 21** + **Spring Boot 3.3**
-- **Spring Security** — JWT аутентификация (jjwt 0.12)
-- **Spring Data JPA** + **Hibernate** — работа с БД
-- **PostgreSQL** — основная база данных
-- **Flyway** — версионирование миграций
-- **Docker Compose** — запуск PostgreSQL в контейнере
-- **JUnit 5** + **Mockito** + **MockMvc** — тесты
+- **Spring Security** — JWT authentication (jjwt 0.12)
+- **Spring Data JPA** + **Hibernate**
+- **PostgreSQL** — primary database
+- **Flyway** — database migration versioning
+- **Docker Compose** — runs PostgreSQL in a container
+- **JUnit 5** + **Mockito** + **MockMvc** — testing
 
-## Возможности
+## Features
 
-- Регистрация и логин с выдачей JWT токена
-- Роли: `USER` и `ADMIN`
-- Просмотр событий с фильтрацией по городу и категории
-- Бронирование мест с защитой от гонки (pessimistic lock)
-- Отмена бронирования с возвратом мест
-- CRUD для событий, площадок и категорий (только ADMIN)
+- User registration and login with JWT token issuance
+- Role-based access control: `USER` and `ADMIN`
+- Browse events with filtering by city and category
+- Book seats with race condition protection (pessimistic locking)
+- Cancel bookings with automatic seat return
+- Full CRUD for events, venues, and categories (ADMIN only)
 
-## Структура проекта
+## Project Structure
 
 ```
 src/main/java/com/eventbooking/
-├── config/          # SecurityConfig
-├── controller/      # REST контроллеры
-├── domain/          # JPA сущности (User, Event, Booking, ...)
-├── dto/             # Request / Response объекты
-├── repository/      # Spring Data репозитории
-├── security/        # JWT фильтр, провайдер, UserDetailsService
-└── service/         # Бизнес-логика
+├── config/          # Security configuration
+├── controller/      # REST controllers
+├── domain/          # JPA entities (User, Event, Booking, ...)
+├── dto/             # Request / Response objects
+├── repository/      # Spring Data repositories
+├── security/        # JWT filter, provider, UserDetailsService
+└── service/         # Business logic
 
 src/main/resources/
 ├── application.yml
-└── db/migration/    # Flyway миграции V1–V4
+└── db/migration/    # Flyway migrations V1–V4
 ```
 
-## Быстрый старт
+## Getting Started
 
-### 1. Требования
+### Prerequisites
 
 - Java 21+
 - Maven 3.9+
 - Docker Desktop
 
-### 2. Запуск базы данных
+### 1. Start the database
 
 ```bash
 docker-compose up -d
 ```
 
-PostgreSQL запустится на порту **5433**.
+PostgreSQL will be available on port **5433**.
 
-### 3. Запуск приложения
+### 2. Run the application
 
 ```bash
 mvn spring-boot:run
 ```
 
-API доступен по адресу: `http://localhost:8080`
+API is available at: `http://localhost:8080`
 
-## API эндпоинты
+## API Reference
 
-### Auth (публичные)
+### Auth — public endpoints
 
-| Метод | URL | Описание |
-|-------|-----|----------|
-| POST | `/api/auth/register` | Регистрация |
-| POST | `/api/auth/login` | Логин → JWT токен |
+| Method | URL | Description |
+|--------|-----|-------------|
+| POST | `/api/auth/register` | Register a new user |
+| POST | `/api/auth/login` | Login and receive a JWT token |
 
-### Events (GET — публичные, остальные — ADMIN)
+### Events — GET is public, write operations require ADMIN
 
-| Метод | URL | Описание |
-|-------|-----|----------|
-| GET | `/api/events` | Список событий (фильтры: `city`, `categoryId`) |
-| GET | `/api/events/{id}` | Событие по ID |
-| POST | `/api/events` | Создать событие |
-| PUT | `/api/events/{id}` | Обновить событие |
-| DELETE | `/api/events/{id}` | Удалить событие |
+| Method | URL | Description |
+|--------|-----|-------------|
+| GET | `/api/events` | List events (filters: `city`, `categoryId`) |
+| GET | `/api/events/{id}` | Get event by ID |
+| POST | `/api/events` | Create event |
+| PUT | `/api/events/{id}` | Update event |
+| DELETE | `/api/events/{id}` | Delete event |
 
-### Bookings (USER)
+### Bookings — require USER role
 
-| Метод | URL | Описание |
-|-------|-----|----------|
-| GET | `/api/bookings` | Мои брони |
-| POST | `/api/bookings` | Забронировать |
-| DELETE | `/api/bookings/{id}` | Отменить бронь |
+| Method | URL | Description |
+|--------|-----|-------------|
+| GET | `/api/bookings` | Get my bookings |
+| POST | `/api/bookings` | Create a booking |
+| DELETE | `/api/bookings/{id}` | Cancel a booking |
 
-### Venues & Categories (GET — публичные, остальные — ADMIN)
+### Venues & Categories — GET is public, write operations require ADMIN
 
-| Метод | URL |
-|-------|-----|
-| GET/POST | `/api/venues` |
-| GET/POST | `/api/categories` |
+| Method | URL |
+|--------|-----|
+| GET / POST | `/api/venues` |
+| GET / POST | `/api/categories` |
 
-## Аутентификация
+## Authentication
 
-Все защищённые эндпоинты требуют заголовок:
+All protected endpoints require the following header:
 
 ```
 Authorization: Bearer <jwt-token>
 ```
 
-Токен получается при логине или регистрации.
+The token is returned on login or registration.
 
-## Примеры запросов
+## Request Examples
 
 ```http
-### Регистрация
+### Register
 POST http://localhost:8080/api/auth/register
 Content-Type: application/json
 
 {
   "email": "user@mail.com",
   "password": "123456",
-  "fullName": "Test User"
+  "fullName": "John Doe"
 }
 
-### Получить события
+### Get events with filters
 GET http://localhost:8080/api/events?city=Kyiv&categoryId=1
 
-### Забронировать
+### Book seats
 POST http://localhost:8080/api/bookings
 Authorization: Bearer <token>
 Content-Type: application/json
@@ -133,21 +133,25 @@ Content-Type: application/json
 }
 ```
 
-## Тесты
+## Running Tests
 
 ```bash
 mvn test
 ```
 
-- `BookingServiceTest` — 6 unit тестов сервиса (Mockito)
-- `AuthControllerTest` — 5 HTTP тестов контроллера (MockMvc)
-- `BookingControllerTest` — 5 HTTP тестов контроллера (MockMvc)
+| Test Class | Type | Count |
+|---|---|---|
+| `BookingServiceTest` | Unit tests (Mockito) | 6 |
+| `AuthControllerTest` | HTTP tests (MockMvc) | 5 |
+| `BookingControllerTest` | HTTP tests (MockMvc) | 5 |
 
-## База данных
+## Database Schema
 
-Схема создаётся автоматически через Flyway миграции:
+The schema is created automatically via Flyway migrations:
 
-- `V1` — таблицы `users`, `roles`
-- `V2` — таблицы `categories`, `venues`
-- `V3` — таблица `events`
-- `V4` — таблица `bookings`
+| Migration | Description |
+|---|---|
+| `V1` | `users` table |
+| `V2` | `categories` and `venues` tables |
+| `V3` | `events` table |
+| `V4` | `bookings` table |
